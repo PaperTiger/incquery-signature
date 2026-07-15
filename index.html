@@ -1,0 +1,508 @@
+<meta charset="utf-8">
+<title>IncQuery Signature Builder</title>
+<style>
+  :root{
+    --paper:#F3F5F1; --surface:#FFFFFF; --surface-2:#FAFBF9;
+    --ink:#16201B; --muted:#5F6F67; --line:#E1E5DF;
+    --brand:#052E22; --accent:#1E7357; --accent-strong:#155C45; --accent-ink:#FFFFFF;
+    --danger:#B4442F;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --radius:10px; --radius-sm:8px;
+    --shadow: 0 1px 2px rgba(5,46,34,.06), 0 8px 24px rgba(5,46,34,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#0A100D; --surface:#111A16; --surface-2:#0E1712;
+      --ink:#E7EDE9; --muted:#8FA098; --line:#233029;
+      --brand:#0B241B; --accent:#2E9E7A; --accent-strong:#3FB994; --accent-ink:#06130E;
+      --danger:#E08165;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#F3F5F1; --surface:#FFFFFF; --surface-2:#FAFBF9;
+    --ink:#16201B; --muted:#5F6F67; --line:#E1E5DF;
+    --brand:#052E22; --accent:#1E7357; --accent-strong:#155C45; --accent-ink:#FFFFFF;
+    --danger:#B4442F; --shadow: 0 1px 2px rgba(5,46,34,.06), 0 8px 24px rgba(5,46,34,.06);
+  }
+  :root[data-theme="dark"]{
+    --paper:#0A100D; --surface:#111A16; --surface-2:#0E1712;
+    --ink:#E7EDE9; --muted:#8FA098; --line:#233029;
+    --brand:#0B241B; --accent:#2E9E7A; --accent-strong:#3FB994; --accent-ink:#06130E;
+    --danger:#E08165; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.5;}
+  .wrap{max-width:1120px;margin:0 auto;padding:28px 24px 72px;}
+
+  /* Header */
+  header.top{display:flex;align-items:center;gap:14px;padding-bottom:20px;
+    border-bottom:1px solid var(--line);margin-bottom:28px;}
+  header.top img.logo{width:46px;height:46px;border-radius:8px;display:block;flex:0 0 auto;}
+  .brandwrap{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .brandwrap .eyebrow{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;}
+  .brandwrap h1{font-size:1.32rem;font-weight:650;margin:0;letter-spacing:-.01em;
+    text-wrap:balance;}
+  header.top .spacer{flex:1;}
+  .themebtn{border:1px solid var(--line);background:var(--surface);color:var(--muted);
+    font:inherit;font-size:.8rem;padding:7px 12px;border-radius:999px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;}
+  .themebtn:hover{color:var(--ink);border-color:var(--muted);}
+
+  /* Layout */
+  .grid{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);
+    gap:36px;align-items:start;}
+  @media (max-width:820px){ .grid{grid-template-columns:1fr;gap:28px;} }
+
+  /* Form */
+  form{display:flex;flex-direction:column;gap:26px;}
+  fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:14px;}
+  legend{padding:0;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+    font-weight:700;color:var(--muted);margin-bottom:2px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:.82rem;font-weight:600;color:var(--ink);}
+  .field .hint{font-size:.72rem;color:var(--muted);}
+  .field input{font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;width:100%;
+    transition:border-color .12s ease, box-shadow .12s ease;}
+  .field input::placeholder{color:color-mix(in srgb, var(--muted) 70%, transparent);}
+  .field input:hover{border-color:var(--muted);}
+  .field input:focus{outline:none;border-color:var(--accent);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:520px){ .row2{grid-template-columns:1fr;} }
+  .locked{font-size:.74rem;color:var(--muted);background:var(--surface-2);
+    border:1px dashed var(--line);border-radius:var(--radius-sm);padding:10px 12px;line-height:1.45;}
+  .locked b{color:var(--ink);font-weight:600;}
+
+  /* Toggle switch */
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 14px;}
+  .toggle-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .toggle-text .toggle-label{font-size:.82rem;font-weight:600;color:var(--ink);}
+  .switch{position:relative;display:inline-block;width:42px;height:24px;flex:0 0 auto;}
+  .switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1;}
+  .switch .slider{position:absolute;inset:0;background:var(--line);border-radius:999px;
+    transition:background .15s ease;}
+  .switch .slider::before{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;
+    border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.28);transition:transform .15s ease;}
+  .switch input:checked + .slider{background:var(--accent);}
+  .switch input:checked + .slider::before{transform:translateX(18px);}
+  .switch input:focus-visible + .slider{outline:2px solid var(--accent);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){ .switch .slider, .switch .slider::before{transition:none;} }
+
+  /* Preview column */
+  .previewcol{position:sticky;top:20px;display:flex;flex-direction:column;gap:16px;}
+  @media (max-width:820px){ .previewcol{position:static;} }
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;}
+  .card .card-h{display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px;border-bottom:1px solid var(--line);}
+  .card .card-h .t{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+    font-weight:700;color:var(--muted);}
+  .card .card-h .n{font-size:.7rem;color:var(--muted);}
+  /* the simulated email surface — always light, signature colors assume white */
+  .email{background:#ffffff;padding:6px 20px 20px;overflow-x:auto;}
+  .email :where(table){max-width:none;}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;}
+  button.btn{font:inherit;font-weight:600;font-size:.9rem;border-radius:var(--radius-sm);
+    padding:11px 18px;cursor:pointer;border:1px solid transparent;display:inline-flex;
+    align-items:center;gap:8px;transition:background .12s ease,border-color .12s ease,color .12s ease;}
+  button.primary{background:var(--accent);color:var(--accent-ink);}
+  button.primary:hover{background:var(--accent-strong);}
+  button.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  button.ghost:hover{border-color:var(--muted);background:var(--surface-2);}
+  button.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  button.btn:active{transform:translateY(1px);}
+
+  details.src{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);}
+  details.src summary{cursor:pointer;list-style:none;padding:12px 16px;font-size:.82rem;
+    font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;}
+  details.src summary::-webkit-details-marker{display:none;}
+  details.src summary .chev{transition:transform .15s ease;color:var(--muted);}
+  details.src[open] summary .chev{transform:rotate(90deg);}
+  details.src pre{margin:0;padding:14px 16px;border-top:1px solid var(--line);
+    font-family:var(--font-mono);font-size:.72rem;line-height:1.55;color:var(--muted);
+    white-space:pre;overflow-x:auto;}
+
+  .howto{font-size:.78rem;color:var(--muted);line-height:1.6;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;}
+  .howto b{color:var(--ink);font-weight:600;}
+  .howto ol{margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;}
+
+  /* Toast */
+  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);
+    background:var(--brand);color:#F3F5F1;font-size:.86rem;font-weight:600;
+    padding:11px 18px;border-radius:999px;box-shadow:0 8px 30px rgba(0,0,0,.28);
+    opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;z-index:50;
+    display:flex;align-items:center;gap:9px;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #toast.err{background:var(--danger);color:#fff;}
+  @media (prefers-reduced-motion:reduce){ #toast{transition:opacity .2s ease;} }
+
+  footer.foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);
+    font-size:.74rem;color:var(--muted);}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <img class="logo" id="headerLogo" alt="IncQuery" />
+    <div class="brandwrap">
+      <span class="eyebrow">IncQuery</span>
+      <h1>Email Signature Builder</h1>
+    </div>
+    <span class="spacer"></span>
+    <button class="themebtn" id="themeToggle" type="button" aria-label="Toggle light or dark theme">
+      <span id="themeIcon">◐</span><span id="themeLabel">Theme</span>
+    </button>
+  </header>
+
+  <div class="grid">
+    <!-- FORM -->
+    <form autocomplete="off" spellcheck="false">
+      <fieldset>
+        <legend>Identity</legend>
+        <div class="field">
+          <label for="name">Full name</label>
+          <input id="name" type="text" value="Ashley Stein" />
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="pronouns">Pronouns</label>
+            <input id="pronouns" type="text" value="she/her" placeholder="optional" />
+          </div>
+          <div class="field">
+            <label for="title">Job title</label>
+            <input id="title" type="text" value="Head of Marketing" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Location &amp; contact</legend>
+        <div class="field">
+          <label for="location">Location</label>
+          <input id="location" type="text" value="New York | EST" placeholder="optional" />
+          <span class="hint">Leave blank to hide this line.</span>
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" type="text" value="" placeholder="optional — e.g. +1 (212) 555-0148" />
+        </div>
+        <div class="field">
+          <label for="phoneLink">Phone link</label>
+          <input id="phoneLink" type="text" value="" placeholder="optional — defaults to a tel: link" />
+          <span class="hint">Leave blank and the number becomes a click-to-call tel: link automatically.</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Links</legend>
+        <div class="field">
+          <label for="meeting">“Grab a coffee” link (URL)</label>
+          <input id="meeting" type="url" value="" placeholder="optional — e.g. Calendly URL" />
+          <span class="hint">Adds a “Grab a coffee with me” link at the bottom. Leave blank to hide it.</span>
+        </div>
+        <div class="field">
+          <div class="toggle-row">
+            <span class="toggle-text">
+              <span class="toggle-label">LinkedIn icon</span>
+              <span class="hint">Links to the IncQuery company page.</span>
+            </span>
+            <label class="switch">
+              <input id="linkedinOn" type="checkbox" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="locked">
+        <b>Locked to brand:</b> the logo panel and the
+        “IncQuery.com&nbsp;|&nbsp;ALWAYS&nbsp;BE&nbsp;SURE™” footer are fixed so every signature stays consistent.
+      </div>
+    </form>
+
+    <!-- PREVIEW -->
+    <div class="previewcol">
+      <div class="card">
+        <div class="card-h">
+          <span class="t">Live preview</span>
+          <span class="n">on a white email background</span>
+        </div>
+        <div class="email"><div id="preview"></div></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="copyBtn" type="button">
+          <span aria-hidden="true">⧉</span> Copy signature
+        </button>
+        <button class="btn ghost" id="copyHtmlBtn" type="button">Copy HTML source</button>
+      </div>
+
+      <details class="src">
+        <summary><span class="chev">▸</span> View HTML source</summary>
+        <pre id="source"></pre>
+      </details>
+
+      <div class="howto">
+        <b>Add it in Outlook:</b>
+        <ol>
+          <li>Click <b>Copy signature</b> above.</li>
+          <li>Outlook → <b>Settings → Mail → Compose and reply</b> (or <b>File → Options → Mail → Signatures</b> on Windows).</li>
+          <li>Create a signature and <b>paste</b> (⌘V / Ctrl+V) into the editor.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    Built for the IncQuery team · The preview shows a white background; some clients apply their own dark-mode recoloring on receipt.
+  </footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Images: data URIs render in the live preview (works on a hosted page);
+  // the CDN URLs are written into the COPIED output because email clients
+  // block data-URI images and need a hosted source.
+  var PANEL_PREVIEW = "data:image/png;base64,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";
+  var ICON_PREVIEW  = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABmJLR0QA/wD/AP+gvaeTAAACzklEQVRYhe2YT0gUURzHv78Zt7VIqJQ8JOqO5aWokOgS1FLkoei4h0ingq7SqVwLYW+uSkQdO5RuUgfp0K2jpyAiUqJDyv5RlqKyfxi1mzv762A7vp19zVtcZ/Wwn9PM9/fm8eG9eTOPB9SoDCpJQiE90Olrsax6vZoiup6xkrPLaUxOWmJeJGgM9J5hphiAxmrKCSwytN5UdOxZIbAFg5Fg3Xy29SMYuzbGzeZLMv67uTCSWiFNZIzWTSAHAI2tHQ1thRtbsM7KV/Wdc0N0qSvzmVcAvwXTQRAOe+QlRSnIRFdTQ+N3/91Se9i8TkDUW61VNLciA88FOQDgVDQ2AuC1t1qruAoSMC2JmUAzHvmU4CoIYL8sZOIDHrhIUQmeMAYuXhaDQL/ZB8YRD52KUC8S5vuBcK8JojdgdAE4VgUvmzI/MxQEI+ipyX9QCeYATEnyk7BfD34J0A9H/TiALUyIE/gxgFnKkwWiZgafAtANwFe5IONncjh22hkHwmYGgB8AmNCXGoq9EOtG2EwzcCflN24hEsk7Hr8d6O85xJr2hBgdKkHVIlkbRIPJaGxUIgcASA5PzJCVPwsgq+rKE8HE0PgDVZvkyMQ7AA9V7cr9F6+JlpvmHl8u35Tdum3ufeTeL2edCE+ZccWtD2+mOBTS28PmI5+FNEib9mcy8203erqczf5o6l+mJ4Lte/3nCDgvRE26pQ8626V9xgcAljMX8WYEoXU7EyY+WtJsZRGVTH1RT+sntQox75bE8t06YdmtL49GkOolYVkfZiceCa4fNcFKqQlWSk2wUuyzGePapX2s52cddQbwXfLcTuF6CSsbW5HtkH/3vkmyHXAcYpGldSZGx+YA9W6GHDIyGhR1EVVfJdhTnNM11592NRFdbEGjPrEAwteNUSpicSG+NF+4sQWnIlM5Zu0CgM8borXCJ2buEU9ZN/0RcI1K+QvQpNVFmW7jYgAAAABJRU5ErkJggg==";
+  var PANEL_EMAIL   = "https://cdn.prod.website-files.com/6a3155770c0f83250f6942bf/6a562d71266ba0f4b969222d_9d43ab008348f5be9d7c77d63038f6bc_Logo%20Panel.png";
+  var ICON_EMAIL    = "https://cdn.prod.website-files.com/6a3155770c0f83250f6942bf/6a553b4f5842b0f55945b993_6eb181bfa8caf87c74445245db429ef1_linkedin-icon%402x.png";
+  var SITE_URL = "https://incquery.com";
+  var LINKEDIN_URL = "https://www.linkedin.com/company/incquery/";
+
+  document.getElementById("headerLogo").src = PANEL_PREVIEW;
+
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function telHref(p){
+    var d = String(p).replace(/[^\d+]/g,"");
+    return d ? "tel:" + d : "";
+  }
+  function val(id){ return (document.getElementById(id).value || "").trim(); }
+  function readForm(){
+    return {
+      name: val("name"), pronouns: val("pronouns"), title: val("title"),
+      location: val("location"), phone: val("phone"), phoneLink: val("phoneLink"),
+      meetingUrl: val("meeting"), meetingLabel: "Grab a coffee with me",
+      linkedin: document.getElementById("linkedinOn").checked ? LINKEDIN_URL : ""
+    };
+  }
+
+  function cell(pad, fs, lh, fw, color, inner){
+    return '<tr><td style="padding:0 0 ' + pad + 'px 0;font-family:Arial,sans-serif;font-size:' + fs
+      + 'px;line-height:' + lh + 'px;mso-line-height-rule:exactly;font-weight:' + fw + ';color:' + color
+      + ';white-space:nowrap;">' + inner + '</td></tr>';
+  }
+
+  function buildSignature(d, mode){
+    var panel = mode === "email" ? PANEL_EMAIL : PANEL_PREVIEW;
+    var icon  = mode === "email" ? ICON_EMAIL  : ICON_PREVIEW;
+
+    // Identity + contact lines (6px apart; the last one gets an 18px gap before the footer)
+    var contact = [];
+    var nameInner = "<strong>" + esc(d.name) + "</strong>" + (d.pronouns ? " | " + esc(d.pronouns) : "");
+    contact.push({fs:14, lh:16, fw:"bold", color:"#080808", inner:nameInner});
+    if(d.title)    contact.push({fs:12, lh:14, fw:"normal", color:"#474747", inner:esc(d.title)});
+    if(d.location) contact.push({fs:12, lh:14, fw:"normal", color:"#080808", inner:esc(d.location)});
+    if(d.phone){
+      var href = d.phoneLink ? d.phoneLink : telHref(d.phone);
+      var ph = href
+        ? '<a href="' + esc(href) + '" style="color:#080808;text-decoration:none;font-family:Arial,sans-serif;font-size:12px;">' + esc(d.phone) + '</a>'
+        : esc(d.phone);
+      contact.push({fs:12, lh:14, fw:"normal", color:"#080808", inner:ph});
+    }
+
+    var rows = "";
+    for(var i=0;i<contact.length;i++){
+      var c = contact[i];
+      var pad = (i === contact.length - 1) ? 18 : 6;
+      rows += cell(pad, c.fs, c.lh, c.fw, c.color, c.inner);
+    }
+
+    // Footer: website + tagline
+    var hasLI = !!d.linkedin;
+    var hasCoffee = !!d.meetingUrl;
+    var hasSocial = hasLI || hasCoffee;
+    var websiteInner =
+      '<a href="' + SITE_URL + '" style="color:#21785E;text-decoration:underline;font-family:Arial,sans-serif;font-size:12px;">IncQuery.com</a>' +
+      '<span style="color:#474747;font-family:Arial,sans-serif;font-size:12px;"> | ALWAYS BE SURE™</span>';
+    rows += cell(hasSocial ? 8 : 0, 12, 14, "normal", "#080808", websiteInner);
+
+    // Bottom row. With a coffee link present, it moves here and the LinkedIn
+    // icon sits to its left on the same line. Without coffee, the LinkedIn
+    // icon stands alone (original behavior).
+    var iconHtml =
+      '<a href="' + esc(d.linkedin) + '" style="text-decoration:none;" aria-label="LinkedIn">' +
+        '<img src="' + icon + '" width="20" height="20" alt="LinkedIn" style="display:block;border:0;outline:none;width:20px;height:20px;" />' +
+      '</a>';
+
+    if(hasCoffee){
+      var iconCell = hasLI
+        ? '<td valign="middle" style="padding:0;font-size:0;line-height:0;">' + iconHtml + '</td>' +
+          '<td style="width:8px;font-size:0;line-height:0;">&nbsp;</td>'
+        : '';
+      var coffeeCell =
+        '<td valign="middle" style="font-family:Arial,sans-serif;font-size:12px;line-height:14px;mso-line-height-rule:exactly;white-space:nowrap;">' +
+          '<a href="' + esc(d.meetingUrl) + '" style="color:#21785E;text-decoration:underline;font-family:Arial,sans-serif;font-size:12px;">' + esc(d.meetingLabel) + '</a>' +
+        '</td>';
+      rows += '<tr><td style="padding:0;">' +
+        '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>' +
+        iconCell + coffeeCell +
+        '</tr></table></td></tr>';
+    } else if(hasLI){
+      rows += '<tr><td style="padding:0;font-size:0;line-height:0;">' + iconHtml + '</td></tr>';
+    }
+
+    return '' +
+'<div style="height:24px;line-height:24px;font-size:12px;font-family:Arial,sans-serif;">&nbsp;</div>\n' +
+'<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,sans-serif;">\n' +
+'  <tr valign="top">\n' +
+'    <td width="117" height="117" valign="top" align="left" style="padding:0;font-size:0;line-height:0;width:117px;height:117px;">\n' +
+'      <img src="' + panel + '" width="117" height="117" alt="IncQuery" style="display:block;border:0;outline:none;width:117px;height:117px;" />\n' +
+'    </td>\n' +
+'    <td width="15" style="width:15px;">&nbsp;</td>\n' +
+'    <td valign="middle" style="padding:0;">\n' +
+'      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">\n' +
+'        ' + rows + '\n' +
+'      </table>\n' +
+'    </td>\n' +
+'  </tr>\n' +
+'</table>';
+  }
+
+  function buildPlain(d){
+    var L = [];
+    L.push(d.name + (d.pronouns ? " | " + d.pronouns : ""));
+    if(d.title)    L.push(d.title);
+    if(d.location) L.push(d.location);
+    if(d.phone)    L.push(d.phone);
+    L.push("IncQuery.com | ALWAYS BE SURE™  " + SITE_URL);
+    if(d.linkedin) L.push("LinkedIn: " + d.linkedin);
+    if(d.meetingUrl) L.push(d.meetingLabel + " — " + d.meetingUrl);
+    return L.join("\n");
+  }
+
+  var previewEl = document.getElementById("preview");
+  var sourceEl  = document.getElementById("source");
+  function render(){
+    var d = readForm();
+    previewEl.innerHTML = buildSignature(d, "preview");
+    sourceEl.textContent = buildSignature(d, "email");
+  }
+
+  // --- Clipboard ---
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function toast(msg, isErr){
+    toastEl.textContent = msg;
+    toastEl.className = isErr ? "show err" : "show";
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.className = ""; }, 2600);
+  }
+
+  function legacyCopyHTML(html){
+    var holder = document.createElement("div");
+    holder.setAttribute("contenteditable", "true");
+    holder.style.position = "fixed";
+    holder.style.left = "-9999px";
+    holder.style.top = "0";
+    holder.style.whiteSpace = "pre-wrap";
+    holder.innerHTML = html;
+    document.body.appendChild(holder);
+    var range = document.createRange();
+    range.selectNodeContents(holder);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch(e){ ok = false; }
+    sel.removeAllRanges();
+    document.body.removeChild(holder);
+    return ok;
+  }
+
+  async function copySignature(){
+    var d = readForm();
+    var html = buildSignature(d, "email");
+    var text = buildPlain(d);
+    // Preferred: rich clipboard write (keeps formatting on paste into Outlook)
+    if(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      try{
+        await navigator.clipboard.write([ new ClipboardItem({
+          "text/html":  new Blob([html], {type:"text/html"}),
+          "text/plain": new Blob([text], {type:"text/plain"})
+        })]);
+        toast("Copied — paste into your signature editor");
+        return;
+      }catch(e){ /* fall through to legacy */ }
+    }
+    if(legacyCopyHTML(html)) toast("Copied — paste into your signature editor");
+    else toast("Copy blocked — open “View HTML source” and copy manually", true);
+  }
+
+  async function copyHtmlSource(){
+    var d = readForm();
+    var html = buildSignature(d, "email");
+    try{
+      await navigator.clipboard.writeText(html);
+      toast("HTML source copied");
+    }catch(e){
+      // select the <pre> as a fallback
+      var range = document.createRange();
+      range.selectNodeContents(sourceEl);
+      var sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+      var ok=false; try{ ok=document.execCommand("copy"); }catch(_){}
+      sel.removeAllRanges();
+      toast(ok ? "HTML source copied" : "Copy blocked — select the source manually", !ok);
+    }
+  }
+
+  // --- Theme toggle ---
+  var root = document.documentElement;
+  function currentDark(){
+    var t = root.getAttribute("data-theme");
+    if(t === "dark") return true;
+    if(t === "light") return false;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function syncThemeLabel(){
+    var dark = currentDark();
+    document.getElementById("themeIcon").textContent = dark ? "☾" : "☀";
+    document.getElementById("themeLabel").textContent = dark ? "Dark" : "Light";
+  }
+  document.getElementById("themeToggle").addEventListener("click", function(){
+    root.setAttribute("data-theme", currentDark() ? "light" : "dark");
+    syncThemeLabel();
+  });
+  if(window.matchMedia){
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncThemeLabel);
+  }
+
+  // --- Wire up ---
+  var inputs = document.querySelectorAll("form input");
+  for(var i=0;i<inputs.length;i++){
+    inputs[i].addEventListener("input", render);
+    inputs[i].addEventListener("change", render);
+  }
+  document.getElementById("copyBtn").addEventListener("click", copySignature);
+  document.getElementById("copyHtmlBtn").addEventListener("click", copyHtmlSource);
+
+  render();
+  syncThemeLabel();
+})();
+</script>
