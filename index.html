@@ -47,11 +47,6 @@
     color:var(--accent);font-weight:700;}
   .brandwrap h1{font-size:1.32rem;font-weight:650;margin:0;letter-spacing:-.01em;
     text-wrap:balance;}
-  header.top .spacer{flex:1;}
-  .themebtn{border:1px solid var(--line);background:var(--surface);color:var(--muted);
-    font:inherit;font-size:.8rem;padding:7px 12px;border-radius:999px;cursor:pointer;
-    display:inline-flex;align-items:center;gap:7px;}
-  .themebtn:hover{color:var(--ink);border-color:var(--muted);}
 
   /* Layout */
   .grid{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);
@@ -156,10 +151,6 @@
       <span class="eyebrow">IncQuery</span>
       <h1>Email Signature Builder</h1>
     </div>
-    <span class="spacer"></span>
-    <button class="themebtn" id="themeToggle" type="button" aria-label="Toggle light or dark theme">
-      <span id="themeIcon">◐</span><span id="themeLabel">Theme</span>
-    </button>
   </header>
 
   <div class="grid">
@@ -472,27 +463,6 @@
     }
   }
 
-  // --- Theme toggle ---
-  var root = document.documentElement;
-  function currentDark(){
-    var t = root.getAttribute("data-theme");
-    if(t === "dark") return true;
-    if(t === "light") return false;
-    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  }
-  function syncThemeLabel(){
-    var dark = currentDark();
-    document.getElementById("themeIcon").textContent = dark ? "☾" : "☀";
-    document.getElementById("themeLabel").textContent = dark ? "Dark" : "Light";
-  }
-  document.getElementById("themeToggle").addEventListener("click", function(){
-    root.setAttribute("data-theme", currentDark() ? "light" : "dark");
-    syncThemeLabel();
-  });
-  if(window.matchMedia){
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncThemeLabel);
-  }
-
   // --- Wire up ---
   var inputs = document.querySelectorAll("form input");
   for(var i=0;i<inputs.length;i++){
@@ -503,6 +473,5 @@
   document.getElementById("copyHtmlBtn").addEventListener("click", copyHtmlSource);
 
   render();
-  syncThemeLabel();
 })();
 </script>
