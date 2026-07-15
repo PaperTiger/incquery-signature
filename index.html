@@ -322,8 +322,8 @@
 
     // Identity + contact lines (6px apart; the last one gets an 18px gap before the footer)
     var contact = [];
-    var nameInner = "<strong>" + esc(d.name) + "</strong>" + (d.pronouns ? " | " + esc(d.pronouns) : "");
-    contact.push({fs:14, lh:16, fw:"bold", color:"#080808", inner:nameInner});
+    var nameInner = esc(d.name) + (d.pronouns ? " | " + esc(d.pronouns) : "");
+    contact.push({fs:14, lh:16, fw:"normal", color:"#080808", inner:nameInner});
     if(d.title)    contact.push({fs:12, lh:14, fw:"normal", color:"#474747", inner:esc(d.title)});
     if(d.location) contact.push({fs:12, lh:14, fw:"normal", color:"#080808", inner:esc(d.location)});
     if(d.phone){
