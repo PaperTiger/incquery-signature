@@ -213,9 +213,25 @@
         </div>
       </fieldset>
 
+      <fieldset>
+        <legend>Layout</legend>
+        <div class="field">
+          <div class="toggle-row">
+            <span class="toggle-text">
+              <span class="toggle-label">Logo panel</span>
+              <span class="hint">Show the IncQuery logo block on the left.</span>
+            </span>
+            <label class="switch">
+              <input id="logoOn" type="checkbox" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+
       <div class="locked">
-        <b>Locked to brand:</b> the logo panel and the
-        “IncQuery.com&nbsp;|&nbsp;ALWAYS&nbsp;BE&nbsp;SURE™” footer are fixed so every signature stays consistent.
+        <b>Locked to brand:</b> the logo image and the
+        “IncQuery.com&nbsp;|&nbsp;ALWAYS&nbsp;BE&nbsp;SURE™” footer are fixed, so every signature stays consistent — but you can hide the logo panel with the toggle above.
       </div>
     </form>
 
@@ -289,7 +305,8 @@
       name: val("name"), pronouns: val("pronouns"), title: val("title"),
       location: val("location"), phone: val("phone"), phoneLink: val("phoneLink"),
       meetingUrl: val("meeting"), meetingLabel: "Grab a coffee with me",
-      linkedin: document.getElementById("linkedinOn").checked ? LINKEDIN_URL : ""
+      linkedin: document.getElementById("linkedinOn").checked ? LINKEDIN_URL : "",
+      logo: document.getElementById("logoOn").checked
     };
   }
 
@@ -358,14 +375,18 @@
       rows += '<tr><td style="padding:0;font-size:0;line-height:0;">' + iconHtml + '</td></tr>';
     }
 
+    var logoCells = d.logo
+      ? '    <td width="117" height="117" valign="top" align="left" style="padding:0;font-size:0;line-height:0;width:117px;height:117px;">\n' +
+        '      <img src="' + panel + '" width="117" height="117" alt="IncQuery" style="display:block;border:0;outline:none;width:117px;height:117px;" />\n' +
+        '    </td>\n' +
+        '    <td width="15" style="width:15px;">&nbsp;</td>\n'
+      : '';
+
     return '' +
 '<div style="height:24px;line-height:24px;font-size:12px;font-family:Arial,sans-serif;">&nbsp;</div>\n' +
 '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,sans-serif;">\n' +
 '  <tr valign="top">\n' +
-'    <td width="117" height="117" valign="top" align="left" style="padding:0;font-size:0;line-height:0;width:117px;height:117px;">\n' +
-'      <img src="' + panel + '" width="117" height="117" alt="IncQuery" style="display:block;border:0;outline:none;width:117px;height:117px;" />\n' +
-'    </td>\n' +
-'    <td width="15" style="width:15px;">&nbsp;</td>\n' +
+logoCells +
 '    <td valign="middle" style="padding:0;">\n' +
 '      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">\n' +
 '        ' + rows + '\n' +
